@@ -5,6 +5,14 @@ class View(ft.UserControl):
     def __init__(self, page: ft.Page):
         super().__init__()
         # page stuff
+        self.ddTeamsValue = None
+        self.ddYearValue = None
+        self._btnPercorso = None
+        self._btnDettagli = None
+        self.ddTeams = None
+        self._btnCreaGrafo = None
+        self._txtOutSquadre = None
+        self.ddYear = None
         self._page = page
         self._page.title = "TdP Baseball Manager 2024"
         self._page.horizontal_alignment = 'CENTER'
@@ -24,20 +32,20 @@ class View(ft.UserControl):
         self._title = ft.Text("TdP Baseball Manager 2024", color="blue", size=24)
         # self._page.controls.append(self._title)
 
-        self._ddAnno = ft.Dropdown(label="Anno", width=200, alignment=ft.alignment.top_left)
+        self.ddYear = ft.Dropdown(label="Anno", width=200, alignment=ft.alignment.top_left, on_change = self.on_ddYear_change)
 
         row1 = ft.Row([ft.Container(self._title, width=500),
                        ft.Container(None, width=0),
-                       ft.Container(self._ddAnno, width=250)], alignment=ft.MainAxisAlignment.CENTER)
+                       ft.Container(self.ddYear, width=250)], alignment=ft.MainAxisAlignment.CENTER)
         self._txtOutSquadre = ft.ListView(expand=1, spacing=10, padding=20, auto_scroll=False)
         cont = ft.Container(self._txtOutSquadre, width=300, height= 200, alignment=ft.alignment.top_left, bgcolor="#deeded")
         self._btnCreaGrafo = ft.ElevatedButton(text="Crea Grafo", on_click=self._controller.handleCreaGrafo)
         row2 = ft.Row([cont, self._btnCreaGrafo], alignment=ft.MainAxisAlignment.CENTER, vertical_alignment=ft.CrossAxisAlignment.END)
 
-        self._ddSquadra = ft.Dropdown(label="Squadra")
+        self.ddTeams = ft.Dropdown(label="Squadra", on_change = self.on_ddTeams_change)
         self._btnDettagli = ft.ElevatedButton(text="Dettagli", on_click=self._controller.handleDettagli)
         self._btnPercorso = ft.ElevatedButton(text="Percorso", on_click=self._controller.handlePercorso)
-        row3 = ft.Row([ft.Container(self._ddSquadra, width=250),
+        row3 = ft.Row([ft.Container(self.ddTeams, width=250),
                        ft.Container(self._btnDettagli, width=250),
                        ft.Container(self._btnPercorso, width=250)], alignment=ft.MainAxisAlignment.CENTER)
 
@@ -50,6 +58,7 @@ class View(ft.UserControl):
 
         self._txt_result = ft.ListView(expand=1, spacing=10, padding=20, auto_scroll=True)
         self._page.controls.append(ft.Container(self._txt_result, bgcolor="#deeded", height=350))
+        self._controller.fillDD()
         self._page.update()
 
     @property
@@ -62,6 +71,21 @@ class View(ft.UserControl):
 
     def set_controller(self, controller):
         self._controller = controller
+
+    def on_ddYear_change(self, e):
+        self.reset_dropdown_teams()
+        self.ddYearValue = self.ddYear.value
+        self._controller.fillDDTeams()
+        self.update_page()
+
+    def reset_dropdown_teams(self):
+        self.ddTeams.value = None
+        self.ddTeams.options = []
+        self.update_page()
+
+    def on_ddTeams_change(self, e):
+        self.ddTeamsValue = self.ddTeams.value
+        self.update_page()
 
     def update_page(self):
         self._page.update()
